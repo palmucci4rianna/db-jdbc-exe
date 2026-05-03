@@ -1,6 +1,10 @@
 package db_lab.data;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,11 +41,31 @@ public final class Tag {
     }
 
     public static final class DAO {
-
         public static Set<Tag> ofProduct(Connection connection, int productId) {
-            // Iterating through a resultSet:
-            // https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html
-            throw new UnsupportedOperationException("unimplemented");
+            var tags = new HashSet<Tag>();
+
+            try (
+                // 1. Prepare the query you want to run
+                var statement = DAOUtils.prepare(connection, Queries.TAGS_FOR_PRODUCT, productId);
+                // 2. Run the query and get back a `ResultSet`
+                var resultSet = statement.executeQuery();
+            ) {
+                // 3. Accumulate all the values of the result set into a list of tags
+                //    iterating over it, row by row, until we run out of results.
+                while (resultSet.next()) {
+                    // 3-a. For each row we read the data we need and create a tag
+                    //      out of it.
+                    var tagName = resultSet.getString("tag_name");
+                    var tag = new Tag(tagName);
+                    tags.add(tag);
+                }
+            } catch (Exception e) {
+                // Note how we wrap all checked `SQLException`s in `DAOException`s so
+                // that they do not bubble up all the function calls.
+                throw new DAOException(e);
+            }
+
+            return tags;
         }
     }
 }

@@ -1,6 +1,10 @@
 package db_lab.data;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,11 +47,25 @@ public final class Material {
     }
 
     public static final class DAO {
-
         public static Map<Material, Float> forProduct(Connection connection, int productId) {
-            // Iterating through a resultSet:
-            // https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html
-            throw new UnsupportedOperationException("Unimplemented");
+            var materials = new HashMap<Material, Float>();
+
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.PRODUCT_COMPOSITION, productId);
+                var resultSet = statement.executeQuery();
+            ) {
+                while (resultSet.next()) {
+                    var code = resultSet.getInt("MATERIAL.code");
+                    var description = resultSet.getString("MATERIAL.description");
+                    var percent = resultSet.getFloat("COMPOSITION.percent");
+                    var material = new Material(code, description);
+                    materials.put(material, percent);
+                }
+            } catch (Exception e) {
+                throw new DAOException(e);
+            }
+
+            return materials;
         }
     }
 }

@@ -13,7 +13,10 @@ public final class DAOUtils {
         try {
             var host = "localhost";
             var port = "3306";
-            var connectionString = "jdbc:mysql://" + host + ":" + port + "/" + database;
+            //var connectionString = "jdbc:mysql://" + host + ":" + port + "/" + database;
+            var connectionString =
+    "jdbc:mysql://localhost:3306/tessiland?useSSL=false&serverTimezone=UTC&socketFactory=com.mysql.cj.protocol.NamedPipeSocketFactory&socket=/tmp/mysql.sock";
+
             return DriverManager.getConnection(connectionString, username, password);
         } catch (Exception e) {
             throw new DAOException(e);

@@ -1,6 +1,9 @@
 package db_lab.data;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,9 +63,24 @@ public final class Product {
     }
 
     public static final class DAO {
-
         public static Optional<Product> find(Connection connection, int productId) {
-            throw new UnsupportedOperationException("Unimplemented");
+            try (
+                var statement = DAOUtils.prepare(connection, Queries.FIND_PRODUCT, productId);
+                var resultSet = statement.executeQuery();
+            ) {
+                if (resultSet.next()) {
+                    var code = resultSet.getInt("code");
+                    var name = resultSet.getString("name");
+                    var description = resultSet.getString("description");
+                    var composition = Material.DAO.forProduct(connection, productId);
+                    var product = new Product(code, name, description, composition);
+                    return Optional.of(product);
+                } else {
+                    return Optional.empty();
+                }
+            } catch (Exception e) {
+                throw new DAOException(e);
+            }
         }
     }
 }
