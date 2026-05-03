@@ -10,7 +10,6 @@ import db_lab.data.Material;
 import db_lab.data.Product;
 import db_lab.data.ProductPreview;
 import db_lab.data.Tag;
-import db_lab.model.Model;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
@@ -28,7 +27,7 @@ public final class AppTest {
 
     @BeforeClass
     public static void setup() throws SQLException {
-        connection = DAOUtils.localMySQLConnection("tessiland", "root", "");
+        connection = DAOUtils.localMySQLConnection("palmucciarianna", "root", "");
 
         // We do everything inside a transaction so that we won't pollute the
         // database with test data.
